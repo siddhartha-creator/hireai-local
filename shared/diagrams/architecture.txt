@@ -1,0 +1,15 @@
+Next.js Frontend
+      |
+      v
+FastAPI /api/v1 Routers
+      |
+      v
+Services -----> AI Interfaces
+      |             |
+      |             v
+      |        Rule-Based Providers
+      v
+Repositories
+      |
+      v
+PostgreSQL

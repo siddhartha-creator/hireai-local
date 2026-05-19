@@ -1,0 +1,59 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: hireai-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-hireai_local}
+      POSTGRES_USER: ${POSTGRES_USER:-hireai}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-hireai}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-hireai} -d ${POSTGRES_DB:-hireai_local}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+    container_name: hireai-backend
+    environment:
+      PROJECT_NAME: HireAI Local
+      ENVIRONMENT: local
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-hireai_local}
+      POSTGRES_USER: ${POSTGRES_USER:-hireai}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-hireai}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-replace-with-a-local-secret}
+      BACKEND_CORS_ORIGINS: http://localhost:3000
+      RESUME_UPLOAD_DIR: /app/uploads/resumes
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - resume_uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: hireai-frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  resume_uploads:
