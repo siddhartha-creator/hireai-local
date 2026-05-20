@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 
 export default function HomePage() {
   return (
@@ -11,6 +12,14 @@ export default function HomePage() {
         <p className="mt-5 max-w-2xl text-xl text-slate-700">
           AI Interview & Hiring Platform
         </p>
+        <div className="mt-8 flex gap-3">
+          <Link className="rounded-md bg-slate-900 px-4 py-2 text-sm text-white" href="/login">
+            Login
+          </Link>
+          <Link className="rounded-md border border-slate-300 px-4 py-2 text-sm" href="/register">
+            Register
+          </Link>
+        </div>
       </section>
     </main>
   );

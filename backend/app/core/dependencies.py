@@ -8,12 +8,18 @@ from app.core.database import get_db_session
 from app.core.exceptions import AuthenticationError, PermissionDeniedError
 from app.core.security import decode_access_token
 from app.models.user import User
+from app.modules.ai_services.interviews.rule_based_answer_scorer import RuleBasedInterviewAnswerScorer
+from app.modules.ai_services.interviews.rule_based_question_generator import RuleBasedInterviewQuestionGenerator
 from app.modules.ai_services.matching.rule_based_engine import RuleBasedMatchingEngine
+from app.modules.analytics.repository import AnalyticsRepository
+from app.modules.analytics.service import AnalyticsService
 from app.modules.auth.service import AuthService
 from app.modules.applications.repository import ApplicationRepository
 from app.modules.applications.service import ApplicationService
 from app.modules.candidates.repository import CandidateRepository
 from app.modules.candidates.service import CandidateService
+from app.modules.interviews.repository import InterviewRepository
+from app.modules.interviews.service import InterviewService
 from app.modules.jobs.repository import JobRepository
 from app.modules.jobs.service import JobService
 from app.modules.recruiters.repository import RecruiterRepository
@@ -80,6 +86,28 @@ def get_scoring_service(db: DatabaseSession) -> ScoringService:
         RecruiterRepository(db),
         ResumeRepository(db),
         RuleBasedMatchingEngine(),
+    )
+
+
+def get_interview_service(db: DatabaseSession) -> InterviewService:
+    return InterviewService(
+        InterviewRepository(db),
+        ApplicationRepository(db),
+        CandidateRepository(db),
+        RecruiterRepository(db),
+        JobRepository(db),
+        ResumeRepository(db),
+        ScoringRepository(db),
+        RuleBasedInterviewQuestionGenerator(),
+        RuleBasedInterviewAnswerScorer(),
+    )
+
+
+def get_analytics_service(db: DatabaseSession) -> AnalyticsService:
+    return AnalyticsService(
+        AnalyticsRepository(db),
+        CandidateRepository(db),
+        RecruiterRepository(db),
     )
 
 

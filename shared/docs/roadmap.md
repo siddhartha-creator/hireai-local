@@ -50,17 +50,23 @@
 
 ## Phase 7: AI Interview Simulator
 
-- Question generation
+- Rule-based question generation
 - Interview sessions
 - Candidate answers
-- Basic answer scoring
+- Basic answer scoring with feedback
+- Overall interview score calculation
+- Candidate, recruiter, and admin interview access rules
+- Future-ready interview AI interfaces
 
 ## Phase 8: Dashboards and Analytics
 
-- Recruiter dashboard
-- Candidate dashboard
-- Activity timeline
-- Aggregate metrics
+- Recruiter dashboard analytics API
+- Candidate dashboard analytics API
+- Admin platform analytics API
+- Activity timeline derived from applications, interviews, and scores
+- Minimal login/register frontend flow
+- Protected frontend routes and role-aware navigation
+- Minimal dashboard, jobs, applications, interviews, and profile pages
 
 ## Phase 9: Testing, Optimization, Documentation
 

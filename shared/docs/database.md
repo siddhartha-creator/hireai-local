@@ -1,6 +1,6 @@
 # Database Design Plan
 
-PostgreSQL is the source of truth. SQLAlchemy models define the current auth, profile, job, application, resume, and match scoring entities, with placeholders for later interview workflows.
+PostgreSQL is the source of truth. SQLAlchemy models define the current auth, profile, job, application, resume, match scoring, and interview simulator entities.
 
 ## Core Tables
 
@@ -197,3 +197,66 @@ updated_at
 ```
 
 Each application has at most one match score. Recalculating an application score updates the existing row. `explanation_json`, `matched_skills_json`, and `missing_skills_json` are stored as JSONB so future OpenAI or embedding-based explanations can extend the payload.
+
+## Interview Tables
+
+`interview_sessions`:
+
+```text
+id
+application_id
+candidate_id
+job_id
+status
+overall_score
+feedback_json
+started_at
+completed_at
+created_at
+updated_at
+```
+
+Interview session status values:
+
+```text
+in_progress
+completed
+cancelled
+```
+
+`interview_questions`:
+
+```text
+id
+session_id
+question_text
+question_type
+skill_tag
+expected_signals_json
+order_index
+created_at
+```
+
+Question type values:
+
+```text
+technical
+behavioral
+role_specific
+resume_based
+```
+
+`candidate_answers`:
+
+```text
+id
+question_id
+answer_text
+score
+feedback_json
+answered_at
+created_at
+updated_at
+```
+
+Each application can have many interview sessions. Each session has many generated questions. Each question has at most one candidate answer. `expected_signals_json` stores deterministic scoring hints, and `feedback_json` stores rule-based feedback for both answers and completed sessions. These JSONB columns keep the schema ready for later OpenAI-generated questions, rubrics, and richer feedback without forcing immediate table changes.

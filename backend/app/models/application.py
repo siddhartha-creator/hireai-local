@@ -22,3 +22,4 @@ class Application(Base):
     job: Mapped["Job"] = relationship(back_populates="applications")
     candidate: Mapped["CandidateProfile"] = relationship(back_populates="applications")
     match_score: Mapped["MatchScore | None"] = relationship(back_populates="application", uselist=False)
+    interview_sessions: Mapped[list["InterviewSession"]] = relationship(back_populates="application")

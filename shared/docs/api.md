@@ -45,6 +45,13 @@ GET /api/v1/applications/job/{job_id}
 GET /api/v1/applications/{application_id}
 PUT /api/v1/applications/{application_id}/status
 GET /api/v1/interviews/status
+POST /api/v1/interviews/sessions
+GET /api/v1/interviews/sessions/{session_id}
+POST /api/v1/interviews/sessions/{session_id}/complete
+GET /api/v1/interviews/me
+GET /api/v1/interviews/applications/{application_id}
+GET /api/v1/interviews
+POST /api/v1/interviews/questions/{question_id}/answer
 GET /api/v1/scoring/status
 POST /api/v1/scoring/applications/{application_id}/score
 GET /api/v1/scoring/applications/{application_id}
@@ -52,6 +59,9 @@ GET /api/v1/scoring/jobs/{job_id}
 GET /api/v1/scoring/me
 GET /api/v1/scoring
 GET /api/v1/analytics/status
+GET /api/v1/analytics/recruiter/dashboard
+GET /api/v1/analytics/candidate/dashboard
+GET /api/v1/analytics/platform
 ```
 
 ## Roles
@@ -503,6 +513,225 @@ Scoring permission rules:
 
 This is `rule_based_v1`. The matching engine is isolated behind `MatchingEngineInterface`, so OpenAI, embeddings, or pgvector-based matching can replace it later without rewriting persistence or routers.
 
+## Interview APIs
+
+Start interview session:
+
+```http
+POST /api/v1/interviews/sessions
+Authorization: Bearer <access_token>
+Content-Type: application/json
+
+{
+  "application_id": "uuid"
+}
+```
+
+Read session:
+
+```http
+GET /api/v1/interviews/sessions/{session_id}
+Authorization: Bearer <access_token>
+```
+
+List candidate interview history:
+
+```http
+GET /api/v1/interviews/me
+Authorization: Bearer <candidate_token>
+```
+
+List sessions for an application:
+
+```http
+GET /api/v1/interviews/applications/{application_id}
+Authorization: Bearer <access_token>
+```
+
+Submit or update an answer:
+
+```http
+POST /api/v1/interviews/questions/{question_id}/answer
+Authorization: Bearer <candidate_token>
+Content-Type: application/json
+
+{
+  "answer_text": "I used FastAPI to build a REST API with SQLAlchemy models, JWT auth, and pytest coverage."
+}
+```
+
+Complete session:
+
+```http
+POST /api/v1/interviews/sessions/{session_id}/complete
+Authorization: Bearer <candidate_token>
+```
+
+Admin list:
+
+```http
+GET /api/v1/interviews
+Authorization: Bearer <admin_token>
+```
+
+Interview status lifecycle:
+
+```text
+in_progress -> completed
+in_progress -> cancelled
+```
+
+Question types:
+
+```text
+technical
+behavioral
+role_specific
+resume_based
+```
+
+Question generation logic:
+
+- Generate about six questions per session.
+- Prefer job skills, matched skills, candidate profile skills, and primary resume extracted skills.
+- Include three technical questions, one behavioral question, one resume-based question, and one role-specific question.
+- Store expected signals as JSON, including keywords and good answer traits.
+
+Answer scoring formula:
+
+```text
+score out of 10 =
+  completeness/length credit
+  + expected keyword overlap
+  + relevance to skill or job context
+  + practical evidence terms
+```
+
+Empty or very short answers receive 0. Completing a session averages answered question scores and converts the result to a 100-point `overall_score`.
+
+Feedback JSON example:
+
+```json
+{
+  "summary": "Good answer with relevant technical detail.",
+  "strengths": ["Mentions expected signals", "Shows practical evidence"],
+  "improvements": ["Add more measurable project context"],
+  "score_reason": "Score combines completeness, keyword overlap, relevance, and evidence."
+}
+```
+
+Interview permission rules:
+
+- Candidate can start/view/complete interviews only for their own applications.
+- Candidate can answer only their own interview questions.
+- Recruiter can view sessions only for applications to their own jobs.
+- Admin can view all interview sessions.
+- Answers cannot be submitted after a session is completed or cancelled.
+
+This is `rule_based_v1`. Question generation and answer scoring are isolated behind `InterviewQuestionGeneratorInterface` and `InterviewAnswerScorerInterface`, so OpenAI or embedding-backed interview logic can replace the rule-based implementation later.
+
+## Analytics APIs
+
+Recruiter dashboard:
+
+```http
+GET /api/v1/analytics/recruiter/dashboard
+Authorization: Bearer <recruiter_token>
+```
+
+Returns recruiter-owned job totals, open/closed job counts, application totals, applications per job, shortlisted and accepted counts, average match score, average interview score, top requested skills, recent applications, and an activity timeline derived from applications, interviews, and scores.
+
+Candidate dashboard:
+
+```http
+GET /api/v1/analytics/candidate/dashboard
+Authorization: Bearer <candidate_token>
+```
+
+Returns the current candidate's application totals, status breakdown, average match score, average interview score, completed and pending interviews, top matched skills, recent applications, and an activity timeline.
+
+Platform analytics:
+
+```http
+GET /api/v1/analytics/platform
+Authorization: Bearer <admin_token>
+```
+
+Returns platform totals for users, candidates, recruiters, jobs, applications, interviews, and average platform match score.
+
+Analytics permission rules:
+
+- Recruiters see only analytics for their own jobs.
+- Candidates see only analytics for their own applications and interviews.
+- Admin users see platform-wide aggregate analytics.
+- Analytics endpoints do not expose raw resume file paths or bypass existing service-layer ownership checks.
+
+Dashboard metric card shape:
+
+```json
+{
+  "label": "Applications",
+  "value": 12,
+  "helper_text": null
+}
+```
+
+Recent activity shape:
+
+```json
+{
+  "id": "uuid",
+  "type": "application",
+  "title": "Application submitted",
+  "description": "Backend Engineer",
+  "occurred_at": "2026-05-20T10:00:00"
+}
+```
+
+## Frontend Route Map
+
+Public routes:
+
+```text
+/
+/login
+/register
+```
+
+Candidate routes:
+
+```text
+/candidate/dashboard
+/candidate/jobs
+/candidate/applications
+/candidate/interviews
+/candidate/profile
+```
+
+Recruiter routes:
+
+```text
+/recruiter/dashboard
+/recruiter/jobs
+/recruiter/applications
+/recruiter/interviews
+/recruiter/profile
+```
+
+Admin routes:
+
+```text
+/admin/dashboard
+```
+
+Frontend auth flow:
+
+- Login calls `/api/v1/auth/login`.
+- Access tokens are stored locally for localhost development.
+- App startup hydrates the current user from `/api/v1/auth/me`.
+- Protected pages redirect unauthenticated users to `/login`.
+- Role-aware navigation is display-only; backend dependencies still enforce authorization.
+
 ## Migrations
 
 ```bash
@@ -522,6 +751,9 @@ jobs
 applications
 resumes
 match_scores
+interview_sessions
+interview_questions
+candidate_answers
 ```
 
 It also inserts the default roles. A safe role seeder is available:
@@ -557,4 +789,4 @@ Planned error shape:
 }
 ```
 
-Phase 7 will add the AI interview simulator.
+Phase 9 will focus on testing depth, optimization, documentation cleanup, and final polish.

@@ -1,6 +1,6 @@
 # HireAI Local
 
-HireAI Local is a local-first AI interview and hiring platform for a production-grade Final Year Project. The current foundation includes backend authentication, role-based access control, candidate/recruiter profiles, job posting, application tracking, resume upload/parsing, and rule-based candidate-job scoring while keeping interviews, dashboards, and frontend screens out of scope until later phases.
+HireAI Local is a local-first AI interview and hiring platform for a production-grade Final Year Project. The current foundation includes backend authentication, role-based access control, candidate/recruiter profiles, job posting, application tracking, resume upload/parsing, rule-based candidate-job scoring, a rule-based AI interview simulator, dashboard analytics APIs, and minimal protected frontend flows.
 
 ## Services
 
@@ -29,7 +29,7 @@ cd backend
 alembic upgrade head
 ```
 
-The migrations create auth, profile, job, application, resume, and match score tables, and insert the default roles:
+The migrations create auth, profile, job, application, resume, match score, and interview tables, and insert the default roles:
 
 - `admin`
 - `recruiter`
@@ -48,6 +48,15 @@ python -m app.utils.seed_roles
 cd backend
 pip install -e ".[dev]"
 pytest
+```
+
+## Frontend Tests and Build
+
+```bash
+cd frontend
+npm install
+npm test -- --run
+npm run build
 ```
 
 ## Authentication Endpoints
@@ -136,6 +145,76 @@ GET  /api/v1/scoring                                      admin only
 
 The scoring engine is deterministic `rule_based_v1`: skills contribute 50 points, experience 25, education 10, and location 15. If a candidate has no primary resume, scoring falls back to profile data and education receives 0.
 
+## Interview Endpoints
+
+```text
+POST /api/v1/interviews/sessions                      candidate owner, recruiter job owner, or admin
+GET  /api/v1/interviews/sessions/{session_id}         candidate owner, recruiter job owner, or admin
+POST /api/v1/interviews/sessions/{session_id}/complete candidate owner only
+GET  /api/v1/interviews/me                            candidate only
+GET  /api/v1/interviews/applications/{application_id} candidate owner, recruiter job owner, or admin
+GET  /api/v1/interviews                               admin only
+POST /api/v1/interviews/questions/{question_id}/answer candidate owner only
+```
+
+Interview statuses:
+
+```text
+in_progress
+completed
+cancelled
+```
+
+The interview engine is deterministic `rule_based_v1`: it generates six questions from job skills, candidate skills, resume skills, job context, and any existing match score. Answers are scored out of 10 using completeness, expected keyword overlap, role relevance, and evidence of practical experience. Completing a session stores an overall score out of 100.
+
+## Analytics Endpoints
+
+```text
+GET /api/v1/analytics/recruiter/dashboard  recruiter only
+GET /api/v1/analytics/candidate/dashboard  candidate only
+GET /api/v1/analytics/platform             admin only
+```
+
+Recruiter analytics aggregate only recruiter-owned jobs, applications, match scores, interview scores, requested skills, and recent activity. Candidate analytics aggregate only the current candidate's applications, status breakdown, match scores, interview scores, matched skills, and activity timeline. Platform analytics give admin-level totals for users, candidates, recruiters, jobs, applications, interviews, and average match score.
+
+## Frontend Routes
+
+Public:
+
+```text
+/
+/login
+/register
+```
+
+Candidate:
+
+```text
+/candidate/dashboard
+/candidate/jobs
+/candidate/applications
+/candidate/interviews
+/candidate/profile
+```
+
+Recruiter:
+
+```text
+/recruiter/dashboard
+/recruiter/jobs
+/recruiter/applications
+/recruiter/interviews
+/recruiter/profile
+```
+
+Admin:
+
+```text
+/admin/dashboard
+```
+
+Frontend authentication uses local access-token persistence, a React auth context, current-user hydration through `/api/v1/auth/me`, client-side protected route guards, and role-aware sidebar navigation. Backend RBAC remains the source of truth.
+
 Register:
 
 ```bash
@@ -172,6 +251,8 @@ Implemented:
 - Jobs/applications migration
 - Resume migration and local storage service
 - Match scoring migration and rule-based matching engine
+- Interview migration and rule-based interview simulator APIs
+- Dashboard analytics APIs
 - Password hashing and JWT access tokens
 - Registration, login, and current-user endpoints
 - Role-based backend dependencies
@@ -179,6 +260,8 @@ Implemented:
 - Job posting and application workflow APIs
 - Resume upload, parsing, primary selection, and metadata access APIs
 - Candidate-job match scoring APIs
+- Interview session, question generation, answer scoring, and completion APIs
+- Minimal frontend login, registration, protected routes, role navigation, dashboards, and read-only resource pages
 - Placeholder module routers
 - Database model placeholders
 - Rule-based AI service interfaces
@@ -188,6 +271,5 @@ Implemented:
 
 Intentionally left as placeholders:
 
-- Interview simulator UI
-- Dashboards and analytics screens
-- Frontend auth screens
+- Full dashboard CRUD workflows and advanced analytics visuals
+- Frontend profile/job/application/interview editors
