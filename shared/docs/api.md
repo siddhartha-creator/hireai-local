@@ -1,4 +1,4 @@
-# API Design Plan
+# API Summary
 
 All application routes are versioned under:
 
@@ -6,24 +6,35 @@ All application routes are versioned under:
 /api/v1
 ```
 
-Initial endpoints:
+## Endpoint Index
 
 ```text
+Health
 GET /api/v1/health
+
+Auth
 GET /api/v1/auth/status
 POST /api/v1/auth/register
 POST /api/v1/auth/login
 GET /api/v1/auth/me
+
+Users
 GET /api/v1/users/status
 GET /api/v1/users/me
+
+Candidates
 GET /api/v1/candidates/status
 GET /api/v1/candidates/me
 PUT /api/v1/candidates/me
 GET /api/v1/candidates/{candidate_id}
+
+Recruiters
 GET /api/v1/recruiters/status
 GET /api/v1/recruiters/me
 PUT /api/v1/recruiters/me
 GET /api/v1/recruiters/{recruiter_id}
+
+Resumes
 GET /api/v1/resumes/status
 POST /api/v1/resumes/upload
 GET /api/v1/resumes/me
@@ -31,12 +42,16 @@ GET /api/v1/resumes/{resume_id}
 GET /api/v1/resumes/{resume_id}/parsed
 PUT /api/v1/resumes/{resume_id}/primary
 DELETE /api/v1/resumes/{resume_id}
+
+Jobs
 GET /api/v1/jobs/status
 POST /api/v1/jobs
 GET /api/v1/jobs
 GET /api/v1/jobs/{job_id}
 PUT /api/v1/jobs/{job_id}
 DELETE /api/v1/jobs/{job_id}
+
+Applications
 GET /api/v1/applications/status
 POST /api/v1/applications
 GET /api/v1/applications
@@ -44,6 +59,8 @@ GET /api/v1/applications/me
 GET /api/v1/applications/job/{job_id}
 GET /api/v1/applications/{application_id}
 PUT /api/v1/applications/{application_id}/status
+
+Interviews
 GET /api/v1/interviews/status
 POST /api/v1/interviews/sessions
 GET /api/v1/interviews/sessions/{session_id}
@@ -52,12 +69,16 @@ GET /api/v1/interviews/me
 GET /api/v1/interviews/applications/{application_id}
 GET /api/v1/interviews
 POST /api/v1/interviews/questions/{question_id}/answer
+
+Scoring
 GET /api/v1/scoring/status
 POST /api/v1/scoring/applications/{application_id}/score
 GET /api/v1/scoring/applications/{application_id}
 GET /api/v1/scoring/jobs/{job_id}
 GET /api/v1/scoring/me
 GET /api/v1/scoring
+
+Analytics
 GET /api/v1/analytics/status
 GET /api/v1/analytics/recruiter/dashboard
 GET /api/v1/analytics/candidate/dashboard
@@ -75,6 +96,14 @@ candidate
 ```
 
 Role checks are enforced in backend dependencies. Frontend role state is display-only and must not be trusted for authorization.
+
+## Permission Summary
+
+```text
+admin:     platform analytics, all applications/scores/interviews, admin profile lookup
+recruiter: own profile, own jobs, applications for own jobs, scores/interviews for own jobs
+candidate: own profile, open jobs, own applications, own resumes, own scores, own interviews
+```
 
 ## Auth Requests
 
@@ -814,4 +843,4 @@ Planned error shape:
 }
 ```
 
-Phase 9 will focus on testing depth, optimization, documentation cleanup, and final polish.
+Successful responses currently return typed resource bodies directly. Error responses use the centralized error envelope. A future API standardization pass can wrap all successful responses in the planned response shape if required.

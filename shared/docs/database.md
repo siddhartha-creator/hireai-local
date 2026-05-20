@@ -26,6 +26,62 @@ PostgreSQL is the source of truth. SQLAlchemy models define the current auth, pr
 - Alembic will own schema migrations.
 - Future vector support can use `pgvector` or a separate ChromaDB service.
 
+## Relationship Summary
+
+```text
+User --< UserRole >-- Role
+User --1 CandidateProfile
+User --1 RecruiterProfile
+RecruiterProfile --< Job
+Job --< Application >-- CandidateProfile
+CandidateProfile --< Resume
+Application --1 MatchScore
+Application --< InterviewSession
+InterviewSession --< InterviewQuestion --1 CandidateAnswer
+User --< ActivityLog
+```
+
+Key rules:
+
+- Candidate and recruiter profiles are one-to-one with users.
+- Recruiters own jobs through `recruiter_profiles`.
+- Candidates apply through `candidate_profiles`.
+- A candidate can apply to a job only once.
+- A match score is unique per application.
+- An interview session belongs to one application and contains generated questions.
+
+## JSON Fields
+
+JSON/JSONB fields are used where the payload is AI-like, parser-derived, or expected to evolve:
+
+- `candidate_profiles.skills_json`
+- `candidate_profiles.education_json`
+- `candidate_profiles.experience_json`
+- `jobs.requirements_json`
+- `jobs.skills_json`
+- `resumes.parsed_data_json`
+- `resumes.extracted_skills_json`
+- `match_scores.explanation_json`
+- `match_scores.matched_skills_json`
+- `match_scores.missing_skills_json`
+- `interview_sessions.feedback_json`
+- `interview_questions.expected_signals_json`
+- `candidate_answers.feedback_json`
+- `activity_logs.metadata_json`
+
+## Migration Flow
+
+Alembic owns schema changes. From the backend directory:
+
+```powershell
+python -m app.utils.ensure_database
+python -m alembic upgrade head
+python -m alembic current
+python -m alembic heads
+```
+
+The local preflight script creates the target database if the configured PostgreSQL role has permission. Docker Compose remains valid, but the final demo can run against local PostgreSQL.
+
 ## Profile Tables
 
 `candidate_profiles`:
@@ -275,4 +331,4 @@ metadata_json
 created_at
 ```
 
-Activity logs provide a lightweight audit trail for demo and future production workflows. Phase 9 includes the table, repository/service boundary, and demo seed activity. Full live event wiring across every workflow remains a future hardening task.
+Activity logs provide a lightweight audit trail for demo and future production workflows. The table, repository/service boundary, and demo seed activity are implemented. Full live event wiring across every workflow remains a future hardening task.

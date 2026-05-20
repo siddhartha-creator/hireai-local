@@ -425,11 +425,9 @@ Implemented:
 - Resume upload, parsing, primary selection, and metadata access APIs
 - Candidate-job match scoring APIs
 - Interview session, question generation, answer scoring, and completion APIs
-- Minimal frontend login, registration, protected routes, role navigation, dashboards, and read-only resource pages
+- Minimal frontend login, registration, protected routes, role navigation, dashboards, job creation, resume upload, application scoring, and interview demo pages
 - Timezone-aware timestamp defaults
 - Idempotent demo seed data
-- Placeholder module routers
-- Database model placeholders
 - Rule-based AI service interfaces
 - Next.js/Tailwind frontend foundation
 - Docker Compose for frontend, backend, and PostgreSQL
@@ -440,3 +438,4 @@ Intentionally left as placeholders:
 - Full dashboard CRUD workflows and advanced analytics visuals
 - Frontend profile/job/application/interview editors
 - Live activity logging across every production workflow
+- OpenAI/embedding-backed AI services
