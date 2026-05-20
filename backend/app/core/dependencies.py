@@ -8,6 +8,7 @@ from app.core.database import get_db_session
 from app.core.exceptions import AuthenticationError, PermissionDeniedError
 from app.core.security import decode_access_token
 from app.models.user import User
+from app.modules.ai_services.matching.rule_based_engine import RuleBasedMatchingEngine
 from app.modules.auth.service import AuthService
 from app.modules.applications.repository import ApplicationRepository
 from app.modules.applications.service import ApplicationService
@@ -23,6 +24,8 @@ from app.modules.resumes.service import ResumeService
 from app.modules.resumes.skills import SkillExtractionService
 from app.modules.resumes.storage import ResumeStorageService
 from app.modules.roles.repository import RoleRepository
+from app.modules.scoring.repository import ScoringRepository
+from app.modules.scoring.service import ScoringService
 from app.modules.users.repository import UserRepository
 
 
@@ -65,6 +68,18 @@ def get_resume_service(db: DatabaseSession) -> ResumeService:
         ResumeStorageService(),
         ResumeParserService(),
         SkillExtractionService(),
+    )
+
+
+def get_scoring_service(db: DatabaseSession) -> ScoringService:
+    return ScoringService(
+        ScoringRepository(db),
+        ApplicationRepository(db),
+        CandidateRepository(db),
+        JobRepository(db),
+        RecruiterRepository(db),
+        ResumeRepository(db),
+        RuleBasedMatchingEngine(),
     )
 
 

@@ -47,6 +47,13 @@ class ResumeRepository(BaseRepository[Resume]):
             .all()
         )
 
+    def get_primary_by_candidate(self, candidate_id) -> Resume | None:
+        return (
+            self.db.query(Resume)
+            .filter(Resume.candidate_id == candidate_id, Resume.is_primary.is_(True))
+            .first()
+        )
+
     def has_any_for_candidate(self, candidate_id) -> bool:
         return self.db.query(Resume).filter(Resume.candidate_id == candidate_id).first() is not None
 

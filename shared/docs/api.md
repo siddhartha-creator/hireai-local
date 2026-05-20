@@ -46,6 +46,11 @@ GET /api/v1/applications/{application_id}
 PUT /api/v1/applications/{application_id}/status
 GET /api/v1/interviews/status
 GET /api/v1/scoring/status
+POST /api/v1/scoring/applications/{application_id}/score
+GET /api/v1/scoring/applications/{application_id}
+GET /api/v1/scoring/jobs/{job_id}
+GET /api/v1/scoring/me
+GET /api/v1/scoring
 GET /api/v1/analytics/status
 ```
 
@@ -408,6 +413,96 @@ Resume permission rules:
 - The first uploaded resume becomes primary automatically.
 - Marking one resume primary unsets other primary resumes for that candidate.
 
+## Scoring APIs
+
+Trigger or recalculate score:
+
+```http
+POST /api/v1/scoring/applications/{application_id}/score
+Authorization: Bearer <access_token>
+```
+
+Read application score:
+
+```http
+GET /api/v1/scoring/applications/{application_id}
+Authorization: Bearer <access_token>
+```
+
+List scores for a job:
+
+```http
+GET /api/v1/scoring/jobs/{job_id}
+Authorization: Bearer <recruiter_or_admin_token>
+```
+
+Candidate scores:
+
+```http
+GET /api/v1/scoring/me
+Authorization: Bearer <candidate_token>
+```
+
+Admin all scores:
+
+```http
+GET /api/v1/scoring
+Authorization: Bearer <admin_token>
+```
+
+Scoring formula:
+
+```text
+overall_score = skill_score + experience_score + education_score + location_score
+skill_score:       50 points
+experience_score:  25 points
+education_score:   10 points
+location_score:    15 points
+```
+
+Skill scoring compares `job.skills_json` with candidate profile `skills_json` and primary resume `extracted_skills_json`. If a job has no skills, neutral skill credit is 25/50.
+
+Experience scoring uses seniority mapping:
+
+```text
+internship: 0 years
+junior:     1 year
+mid:        3 years
+senior:     5 years
+lead:       7 years
+```
+
+Missing or unknown seniority receives neutral experience credit of 10/25. Education receives 10 points when parsed resume education exists, otherwise 0. Location receives 15 for exact match or both remote, 5 for missing data, and 0 otherwise.
+
+Explanation JSON example:
+
+```json
+{
+  "summary": "Candidate is a strong match with score 95/100.",
+  "skill_reason": "Matched 3 of 3 required skills. Missing: none.",
+  "experience_reason": "Candidate has 5 years; mid expects about 3 years.",
+  "education_reason": "Education evidence found in parsed resume.",
+  "location_reason": "Candidate location matches job location.",
+  "recommendation": "strong_match"
+}
+```
+
+Recommendations:
+
+```text
+80+    strong_match
+50-79  moderate_match
+<50    weak_match
+```
+
+Scoring permission rules:
+
+- Candidate can score/view only their own applications.
+- Recruiter can score/view only applications for their own jobs.
+- Admin can score/view all applications and scores.
+
+This is `rule_based_v1`. The matching engine is isolated behind `MatchingEngineInterface`, so OpenAI, embeddings, or pgvector-based matching can replace it later without rewriting persistence or routers.
+
 ## Migrations
 
 ```bash
@@ -426,6 +521,7 @@ recruiter_profiles
 jobs
 applications
 resumes
+match_scores
 ```
 
 It also inserts the default roles. A safe role seeder is available:
@@ -461,4 +557,4 @@ Planned error shape:
 }
 ```
 
-Phase 6 will add matching and scoring on top of parsed resumes and job/application data.
+Phase 7 will add the AI interview simulator.

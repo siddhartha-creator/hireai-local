@@ -30,3 +30,4 @@ class CandidateProfile(Base):
     user: Mapped["User"] = relationship(back_populates="candidate_profile")
     applications: Mapped[list["Application"]] = relationship(back_populates="candidate")
     resumes: Mapped[list["Resume"]] = relationship(back_populates="candidate")
+    match_scores: Mapped[list["MatchScore"]] = relationship(back_populates="candidate")

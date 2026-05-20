@@ -45,6 +45,8 @@
 - Rule-based scoring
 - Score explanations
 - Recruiter candidate ranking
+- Candidate self-service score view
+- Future-ready matching engine abstraction
 
 ## Phase 7: AI Interview Simulator
 

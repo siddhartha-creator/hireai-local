@@ -1,6 +1,6 @@
 # HireAI Local
 
-HireAI Local is a local-first AI interview and hiring platform for a production-grade Final Year Project. The current foundation includes backend authentication, role-based access control, candidate/recruiter profiles, job posting, application tracking, and resume upload/parsing while keeping interviews, AI matching, and dashboards out of scope until later phases.
+HireAI Local is a local-first AI interview and hiring platform for a production-grade Final Year Project. The current foundation includes backend authentication, role-based access control, candidate/recruiter profiles, job posting, application tracking, resume upload/parsing, and rule-based candidate-job scoring while keeping interviews, dashboards, and frontend screens out of scope until later phases.
 
 ## Services
 
@@ -29,7 +29,7 @@ cd backend
 alembic upgrade head
 ```
 
-The migrations create auth, profile, job, application, and resume tables, and insert the default roles:
+The migrations create auth, profile, job, application, resume, and match score tables, and insert the default roles:
 
 - `admin`
 - `recruiter`
@@ -124,6 +124,18 @@ Resume files are stored locally under `backend/storage/resumes/` by default thro
 
 Parsing uses `pypdf` for PDFs, `python-docx` for DOCX files, and rule-based keyword extraction for initial skills.
 
+## Scoring Endpoints
+
+```text
+POST /api/v1/scoring/applications/{application_id}/score  candidate owner, recruiter job owner, or admin
+GET  /api/v1/scoring/applications/{application_id}        candidate owner, recruiter job owner, or admin
+GET  /api/v1/scoring/jobs/{job_id}                        recruiter job owner or admin
+GET  /api/v1/scoring/me                                   candidate only
+GET  /api/v1/scoring                                      admin only
+```
+
+The scoring engine is deterministic `rule_based_v1`: skills contribute 50 points, experience 25, education 10, and location 15. If a candidate has no primary resume, scoring falls back to profile data and education receives 0.
+
 Register:
 
 ```bash
@@ -159,12 +171,14 @@ Implemented:
 - Candidate/recruiter profile migration
 - Jobs/applications migration
 - Resume migration and local storage service
+- Match scoring migration and rule-based matching engine
 - Password hashing and JWT access tokens
 - Registration, login, and current-user endpoints
 - Role-based backend dependencies
 - Candidate and recruiter profile APIs
 - Job posting and application workflow APIs
 - Resume upload, parsing, primary selection, and metadata access APIs
+- Candidate-job match scoring APIs
 - Placeholder module routers
 - Database model placeholders
 - Rule-based AI service interfaces
@@ -174,7 +188,6 @@ Implemented:
 
 Intentionally left as placeholders:
 
-- Matching persistence workflows
 - Interview simulator UI
 - Dashboards and analytics screens
 - Frontend auth screens

@@ -14,6 +14,7 @@ from app.models.application import Application
 from app.models.job import Job
 from app.models.recruiter import RecruiterProfile
 from app.models.resume import Resume
+from app.models.scoring import MatchScore
 from app.models.user import Role, User, UserRole
 from app.utils.seed_roles import seed_default_roles
 
@@ -35,6 +36,7 @@ def db_session(tmp_path) -> Generator[Session, None, None]:
         Job.__table__,
         Application.__table__,
         Resume.__table__,
+        MatchScore.__table__,
     ]
     for table in tables:
         table.create(bind=engine, checkfirst=True)

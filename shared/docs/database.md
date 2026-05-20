@@ -1,6 +1,6 @@
 # Database Design Plan
 
-PostgreSQL is the source of truth. SQLAlchemy models define the current auth, profile, job, application, and resume entities, with placeholders for later AI workflows.
+PostgreSQL is the source of truth. SQLAlchemy models define the current auth, profile, job, application, resume, and match scoring entities, with placeholders for later interview workflows.
 
 ## Core Tables
 
@@ -173,3 +173,27 @@ Resume files are stored locally outside the Python source package under `backend
 ```
 
 Only one resume should be primary for a candidate at a time. The service layer enforces this by unsetting existing primary resumes before marking a new one primary.
+
+## Match Score Table
+
+`match_scores`:
+
+```text
+id
+application_id
+candidate_id
+job_id
+overall_score
+skill_score
+experience_score
+education_score
+location_score
+explanation_json
+matched_skills_json
+missing_skills_json
+scoring_version
+created_at
+updated_at
+```
+
+Each application has at most one match score. Recalculating an application score updates the existing row. `explanation_json`, `matched_skills_json`, and `missing_skills_json` are stored as JSONB so future OpenAI or embedding-based explanations can extend the payload.

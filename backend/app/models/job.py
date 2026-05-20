@@ -27,3 +27,4 @@ class Job(Base):
 
     recruiter: Mapped["RecruiterProfile"] = relationship(back_populates="jobs")
     applications: Mapped[list["Application"]] = relationship(back_populates="job")
+    match_scores: Mapped[list["MatchScore"]] = relationship(back_populates="job")
