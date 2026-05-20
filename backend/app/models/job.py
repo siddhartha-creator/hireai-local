@@ -5,6 +5,7 @@ from sqlalchemy import DateTime, Float, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import GUID, JSONBType, Base
+from app.core.time import utc_now
 
 
 class Job(Base):
@@ -22,8 +23,8 @@ class Job(Base):
     salary_min: Mapped[float | None] = mapped_column(Float)
     salary_max: Mapped[float | None] = mapped_column(Float)
     status: Mapped[str] = mapped_column(String(50), default="draft", nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now, onupdate=utc_now, nullable=False)
 
     recruiter: Mapped["RecruiterProfile"] = relationship(back_populates="jobs")
     applications: Mapped[list["Application"]] = relationship(back_populates="job")

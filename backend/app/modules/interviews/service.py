@@ -1,7 +1,7 @@
-from datetime import datetime
 from uuid import UUID
 
 from app.core.exceptions import ConflictError, PermissionDeniedError, ResourceNotFoundError
+from app.core.time import utc_now
 from app.models.application import Application
 from app.models.interview import InterviewQuestion, InterviewSession
 from app.models.job import Job
@@ -120,7 +120,7 @@ class InterviewService(BaseService):
         overall_score = round(average_answer_score * 10, 2)
         session.overall_score = overall_score
         session.status = "completed"
-        session.completed_at = datetime.utcnow()
+        session.completed_at = utc_now()
         session.feedback_json = InterviewFeedback(
             summary=f"Interview completed with overall score {overall_score}/100.",
             strengths=["Completed answered questions with evaluable responses."],

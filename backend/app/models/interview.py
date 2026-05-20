@@ -5,6 +5,7 @@ from sqlalchemy import DateTime, Float, ForeignKey, Integer, String, Text, Uniqu
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import GUID, JSONBType, Base
+from app.core.time import utc_now
 
 
 class InterviewSession(Base):
@@ -17,10 +18,10 @@ class InterviewSession(Base):
     status: Mapped[str] = mapped_column(String(50), default="in_progress", nullable=False)
     overall_score: Mapped[float | None] = mapped_column(Float)
     feedback_json: Mapped[dict | None] = mapped_column(JSONBType)
-    started_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    started_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now, nullable=False)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now, onupdate=utc_now, nullable=False)
 
     application: Mapped["Application"] = relationship(back_populates="interview_sessions")
     questions: Mapped[list["InterviewQuestion"]] = relationship(
@@ -39,7 +40,7 @@ class InterviewQuestion(Base):
     skill_tag: Mapped[str | None] = mapped_column(String(120))
     expected_signals_json: Mapped[dict | None] = mapped_column(JSONBType)
     order_index: Mapped[int] = mapped_column(Integer, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now, nullable=False)
 
     session: Mapped[InterviewSession] = relationship(back_populates="questions")
     answer: Mapped["CandidateAnswer | None"] = relationship(back_populates="question", uselist=False)
@@ -54,8 +55,8 @@ class CandidateAnswer(Base):
     answer_text: Mapped[str] = mapped_column(Text, nullable=False)
     score: Mapped[float | None] = mapped_column(Float)
     feedback_json: Mapped[dict | None] = mapped_column(JSONBType)
-    answered_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    answered_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now, onupdate=utc_now, nullable=False)
 
     question: Mapped[InterviewQuestion] = relationship(back_populates="answer")

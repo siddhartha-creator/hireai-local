@@ -5,6 +5,7 @@ from sqlalchemy import DateTime, Float, ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import GUID, JSONBType, Base
+from app.core.time import utc_now
 
 
 class MatchScore(Base):
@@ -24,8 +25,8 @@ class MatchScore(Base):
     matched_skills_json: Mapped[list] = mapped_column(JSONBType, nullable=False)
     missing_skills_json: Mapped[list] = mapped_column(JSONBType, nullable=False)
     scoring_version: Mapped[str] = mapped_column(String(80), default="rule_based_v1", nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now, onupdate=utc_now, nullable=False)
 
     application: Mapped["Application"] = relationship(back_populates="match_score")
     candidate: Mapped["CandidateProfile"] = relationship(back_populates="match_scores")

@@ -11,6 +11,7 @@ const navItems: Record<UserRole, Array<{ href: string; label: string }>> = {
     { href: "/candidate/dashboard", label: "Dashboard" },
     { href: "/candidate/jobs", label: "Jobs" },
     { href: "/candidate/applications", label: "Applications" },
+    { href: "/candidate/resumes", label: "Resumes" },
     { href: "/candidate/interviews", label: "Interviews" },
     { href: "/candidate/profile", label: "Profile" },
   ],

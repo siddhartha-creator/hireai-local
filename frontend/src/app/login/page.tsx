@@ -11,6 +11,12 @@ export default function LoginPage() {
         <div className="mt-6">
           <LoginForm />
         </div>
+        <div className="mt-6 rounded-md border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
+          <p className="font-medium text-slate-950">Demo accounts</p>
+          <p className="mt-2">admin@hireai.local / Password123!</p>
+          <p>recruiter@hireai.local / Password123!</p>
+          <p>candidate@hireai.local / Password123!</p>
+        </div>
         <p className="mt-4 text-sm text-slate-600">
           New here? <Link className="font-medium text-slate-950" href="/register">Create an account</Link>
         </p>

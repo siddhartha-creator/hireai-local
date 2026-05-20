@@ -5,6 +5,7 @@ from sqlalchemy import DateTime, ForeignKey, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import GUID, Base
+from app.core.time import utc_now
 
 
 class Application(Base):
@@ -16,8 +17,8 @@ class Application(Base):
     candidate_id: Mapped[UUID] = mapped_column(GUID(), ForeignKey("candidate_profiles.id"), nullable=False)
     status: Mapped[str] = mapped_column(String(50), default="submitted", nullable=False)
     cover_letter: Mapped[str | None] = mapped_column(Text)
-    applied_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    applied_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now, onupdate=utc_now, nullable=False)
 
     job: Mapped["Job"] = relationship(back_populates="applications")
     candidate: Mapped["CandidateProfile"] = relationship(back_populates="applications")

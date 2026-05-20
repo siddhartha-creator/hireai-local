@@ -11,7 +11,8 @@ export class ApiError extends Error {
 
 export async function apiClient<T>(path: string, init?: RequestInit & { token?: string | null }): Promise<T> {
   const headers = new Headers(init?.headers);
-  if (!headers.has("Content-Type") && init?.body) {
+  const isFormData = typeof FormData !== "undefined" && init?.body instanceof FormData;
+  if (!headers.has("Content-Type") && init?.body && !isFormData) {
     headers.set("Content-Type", "application/json");
   }
   if (init?.token) {
@@ -24,7 +25,14 @@ export async function apiClient<T>(path: string, init?: RequestInit & { token?: 
   });
 
   if (!response.ok) {
-    throw new ApiError(`API request failed with status ${response.status}`, response.status);
+    let message = `API request failed with status ${response.status}`;
+    try {
+      const errorBody = await response.json();
+      message = errorBody?.message ?? message;
+    } catch {
+      // Keep default message when the backend returns an empty/non-JSON response.
+    }
+    throw new ApiError(message, response.status);
   }
 
   return response.json() as Promise<T>;

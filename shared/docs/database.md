@@ -260,3 +260,19 @@ updated_at
 ```
 
 Each application can have many interview sessions. Each session has many generated questions. Each question has at most one candidate answer. `expected_signals_json` stores deterministic scoring hints, and `feedback_json` stores rule-based feedback for both answers and completed sessions. These JSONB columns keep the schema ready for later OpenAI-generated questions, rubrics, and richer feedback without forcing immediate table changes.
+
+## Activity Log Table
+
+`activity_logs`:
+
+```text
+id
+actor_user_id
+action
+entity_type
+entity_id
+metadata_json
+created_at
+```
+
+Activity logs provide a lightweight audit trail for demo and future production workflows. Phase 9 includes the table, repository/service boundary, and demo seed activity. Full live event wiring across every workflow remains a future hardening task.

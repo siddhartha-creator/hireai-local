@@ -11,6 +11,7 @@ from app.core.config import settings
 from app.main import create_app
 from app.models.candidate import CandidateProfile
 from app.models.application import Application
+from app.models.activity_log import ActivityLog
 from app.models.job import Job
 from app.models.interview import CandidateAnswer, InterviewQuestion, InterviewSession
 from app.models.recruiter import RecruiterProfile
@@ -41,6 +42,7 @@ def db_session(tmp_path) -> Generator[Session, None, None]:
         InterviewSession.__table__,
         InterviewQuestion.__table__,
         CandidateAnswer.__table__,
+        ActivityLog.__table__,
     ]
     for table in tables:
         table.create(bind=engine, checkfirst=True)

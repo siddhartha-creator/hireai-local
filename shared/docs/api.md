@@ -703,8 +703,12 @@ Candidate routes:
 ```text
 /candidate/dashboard
 /candidate/jobs
+/candidate/jobs/{id}
 /candidate/applications
+/candidate/applications/{id}
+/candidate/resumes
 /candidate/interviews
+/candidate/interviews/{id}
 /candidate/profile
 ```
 
@@ -713,7 +717,10 @@ Recruiter routes:
 ```text
 /recruiter/dashboard
 /recruiter/jobs
+/recruiter/jobs/new
+/recruiter/jobs/{id}
 /recruiter/applications
+/recruiter/applications/{id}
 /recruiter/interviews
 /recruiter/profile
 ```
@@ -731,6 +738,24 @@ Frontend auth flow:
 - App startup hydrates the current user from `/api/v1/auth/me`.
 - Protected pages redirect unauthenticated users to `/login`.
 - Role-aware navigation is display-only; backend dependencies still enforce authorization.
+
+## Demo Data
+
+Seed demo data from the backend directory:
+
+```bash
+python -m app.utils.seed_demo_data
+```
+
+Demo accounts:
+
+```text
+admin@hireai.local / Password123!
+recruiter@hireai.local / Password123!
+candidate@hireai.local / Password123!
+```
+
+The seed command is idempotent. It creates demo profiles, jobs, applications, resume metadata, one match score, one completed interview, and activity log entries suitable for dashboard analytics.
 
 ## Migrations
 

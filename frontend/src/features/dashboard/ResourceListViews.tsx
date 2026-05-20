@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { DataTable } from "@/components/ui/DataTable";
 import { ErrorState, LoadingState } from "@/components/ui/PageState";
 import { listMyApplications } from "@/features/applications/api";
@@ -13,6 +14,8 @@ import type { ApplicationRead, InterviewSessionSummary, JobListItem, UserRole } 
 
 export function JobsView() {
   const { token } = useAuth();
+  const { user } = useAuth();
+  const isRecruiter = user?.roles.some((role) => role.name === "recruiter") ?? false;
   const [rows, setRows] = useState<JobListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -27,9 +30,16 @@ export function JobsView() {
 
   return (
     <PageBlock title="Jobs">
+      {isRecruiter ? (
+        <div className="mb-3">
+          <Link className="rounded-md bg-slate-900 px-4 py-2 text-sm text-white" href="/recruiter/jobs/new">
+            Create job
+          </Link>
+        </div>
+      ) : null}
       <DataTable
         columns={[
-          { key: "title", header: "Title", render: (job) => job.title },
+          { key: "title", header: "Title", render: (job) => <Link className="font-medium underline" href={isRecruiter ? `/recruiter/jobs/${job.id}` : `/candidate/jobs/${job.id}`}>{job.title}</Link> },
           { key: "location", header: "Location", render: (job) => job.location ?? "N/A" },
           { key: "status", header: "Status", render: (job) => job.status },
         ]}
@@ -59,7 +69,7 @@ export function ApplicationsView() {
       <DataTable
         columns={[
           { key: "job", header: "Job", render: (application) => application.job_id },
-          { key: "status", header: "Status", render: (application) => application.status },
+          { key: "status", header: "Status", render: (application) => <Link className="underline" href={`/candidate/applications/${application.id}`}>{application.status}</Link> },
           { key: "date", header: "Applied", render: (application) => new Date(application.applied_at).toLocaleDateString() },
         ]}
         emptyText="No applications yet."
@@ -119,7 +129,7 @@ export function InterviewsView() {
     <PageBlock title="Interviews">
       <DataTable
         columns={[
-          { key: "application", header: "Application", render: (session) => session.application_id },
+          { key: "application", header: "Application", render: (session) => <Link className="underline" href={`/candidate/interviews/${session.id}`}>{session.application_id}</Link> },
           { key: "status", header: "Status", render: (session) => session.status },
           { key: "score", header: "Score", render: (session) => session.overall_score ?? "N/A" },
         ]}

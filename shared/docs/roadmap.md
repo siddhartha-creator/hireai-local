@@ -74,3 +74,8 @@
 - Frontend tests
 - OpenAPI cleanup
 - Final report support
+- Timezone-aware timestamp cleanup
+- Idempotent demo seed data
+- Demo accounts and demo script
+- Activity log table foundation
+- Final README and testing documentation

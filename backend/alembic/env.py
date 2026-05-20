@@ -5,6 +5,7 @@ from sqlalchemy import engine_from_config, pool
 
 from app.core.config import settings
 from app.core.database import Base
+from app.utils.ensure_database import ensure_database_exists
 from app import models  # noqa: F401
 
 
@@ -30,6 +31,7 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
+    ensure_database_exists()
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",

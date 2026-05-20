@@ -5,6 +5,7 @@ from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import GUID, JSONBType, Base
+from app.core.time import utc_now
 
 
 class Resume(Base):
@@ -21,7 +22,7 @@ class Resume(Base):
     parsed_data_json: Mapped[dict | None] = mapped_column(JSONBType)
     extracted_skills_json: Mapped[list | None] = mapped_column(JSONBType)
     is_primary: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    uploaded_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    uploaded_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now, onupdate=utc_now, nullable=False)
 
     candidate: Mapped["CandidateProfile"] = relationship(back_populates="resumes")

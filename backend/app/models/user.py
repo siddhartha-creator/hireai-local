@@ -4,6 +4,7 @@ from uuid import UUID, uuid4
 from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.core.time import utc_now
 from app.core.database import GUID, Base
 
 
@@ -15,8 +16,8 @@ class User(Base):
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     full_name: Mapped[str] = mapped_column(String(255), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now, onupdate=utc_now, nullable=False)
 
     roles: Mapped[list["Role"]] = relationship(secondary="user_roles", back_populates="users")
     candidate_profile: Mapped["CandidateProfile | None"] = relationship(back_populates="user", uselist=False)
@@ -29,7 +30,7 @@ class Role(Base):
     id: Mapped[UUID] = mapped_column(GUID(), primary_key=True, default=uuid4)
     name: Mapped[str] = mapped_column(String(80), unique=True, nullable=False)
     description: Mapped[str | None] = mapped_column(Text)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now, nullable=False)
 
     users: Mapped[list[User]] = relationship(secondary="user_roles", back_populates="roles")
 

@@ -5,6 +5,7 @@ from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import GUID, Base
+from app.core.time import utc_now
 
 
 class RecruiterProfile(Base):
@@ -21,8 +22,8 @@ class RecruiterProfile(Base):
     location: Mapped[str | None] = mapped_column(String(255))
     company_description: Mapped[str | None] = mapped_column(Text)
     is_completed: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now, onupdate=utc_now, nullable=False)
 
     user: Mapped["User"] = relationship(back_populates="recruiter_profile")
     jobs: Mapped[list["Job"]] = relationship(back_populates="recruiter")
